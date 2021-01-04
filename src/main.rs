@@ -58,14 +58,19 @@ impl EventHandler for Handler {
 
 async fn findimage() -> Result<String, Box<dyn std::error::Error>> {
     let res = reqwest::get("https://www.google.com/search?q=llama&sclient=img&tbm=isch").await;
-    let random_num = rand::thread_rng().gen_range(0..10);
+    
     let body = res.unwrap().text().await.unwrap();
 
     let body = Document::from(body.as_str());
-    let image = body
+    let image_iter = body
         .find(Name("img"))
-        .filter_map(|n| n.attr("src")) // this is an iterator
-        .nth(random_num); // TODO: handle None scenario
+        .filter_map(|n| n.attr("src")); // this is an iterator
+    let random_num = rand::thread_rng().gen_range(0..image_iter.count());
+    // TODO: find out how can we copy iterator instead of having to regenerate it
+    let mut image_iter = body
+        .find(Name("img"))
+        .filter_map(|n| n.attr("src")); // this is an iterator
+    let image = image_iter.nth(random_num); // TODO: handle None scenario
 
     return Ok(String::from(image.unwrap()));
 }
