@@ -1,5 +1,6 @@
-use std::env;
-
+#![type_length_limit="1884939"]
+use std::{convert::Infallible, env, net::SocketAddr};
+use hyper::{Body, Request, Response, Server, service::{make_service_fn, service_fn}};
 use serenity::{
     async_trait,
     model::{channel::Message, gateway::Ready},
@@ -75,6 +76,10 @@ async fn findimage() -> Result<String, Box<dyn std::error::Error>> {
     return Ok(String::from(image.unwrap()));
 }
 
+async fn hello_world(_req: Request<Body>) -> Result<Response<Body>, Infallible> {
+    Ok(Response::new("Hello, World".into()))
+}
+
 #[tokio::main]
 async fn main() {
     let token = env::var("DISCORD_TOKEN").expect("Expected a token in the environment");
@@ -83,8 +88,22 @@ async fn main() {
         .event_handler(Handler)
         .await
         .expect("Err creating client");
+    // run simple http server to satisfy healthchecks
+    let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
+    // A `Service` is needed for every connection, so this
+    // creates one from our `hello_world` function.
+    let make_svc = make_service_fn(|_conn| async {
+        // service_fn converts our function into a `Service`
+        Ok::<_, Infallible>(service_fn(hello_world))
+    });
+    let server = Server::bind(&addr).serve(make_svc);
+    
+    let (server_result, client_result) = tokio::join!(server, client.start());
 
-    if let Err(why) = client.start().await {
+    if let Err(why) = client_result {
         println!("Client error: {:?}", why);
+    }
+    if let Err(why) = server_result {
+        println!("Server error: {:?}", why);
     }
 }
