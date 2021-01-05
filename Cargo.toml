@@ -13,4 +13,4 @@ serenity = { default-features = false, features = ["client", "gateway", "model",
 reqwest = { version = "0.10", features = ["blocking"] }
 select = {version = "0.5"}
 rand = "0.8.0"
-hyper = {version = "0.13.9", features = ["full"]}
+hyper = {version = "0.13.9"}
