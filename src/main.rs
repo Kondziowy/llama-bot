@@ -89,7 +89,7 @@ async fn main() {
         .await
         .expect("Err creating client");
     // run simple http server to satisfy healthchecks
-    let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
+    let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
     // A `Service` is needed for every connection, so this
     // creates one from our `hello_world` function.
     let make_svc = make_service_fn(|_conn| async {
