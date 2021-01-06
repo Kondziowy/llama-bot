@@ -1,4 +1,4 @@
-FROM rust:1.40 as builder
+FROM rust as builder
 WORKDIR /usr/src/discord-help-bot
 COPY . .
 RUN cargo install --path .
