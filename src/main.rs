@@ -25,7 +25,7 @@ struct Handler;
 #[async_trait]
 impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
-        println!("Got {}", msg.content);
+        // println!("Got {}", msg.content);
         let mut response = String::new();
         match msg.content.as_str() {
             HELP_COMMAND => {
