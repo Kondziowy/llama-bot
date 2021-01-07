@@ -8,7 +8,7 @@ use serenity::{
 };
 
 use rand::Rng;
-use select::document::Document;
+use select::{document::Document, node::Node};
 use select::predicate::Name;
 
 const HELP_MESSAGE: &str = "
@@ -57,6 +57,20 @@ impl EventHandler for Handler {
     }
 }
 
+fn get_absolute_uri(n: Node) -> Option<&str> {
+    match n.attr("src") {
+        Some(link) => {
+            if link.starts_with("http") {
+                return Some(link);
+            }
+        }
+        None => {
+            return None;
+        }
+    }
+    return None
+}
+
 async fn findimage() -> Result<String, Box<dyn std::error::Error>> {
     let res = reqwest::get("https://www.google.com/search?q=llama&sclient=img&tbm=isch").await;
     
@@ -65,12 +79,12 @@ async fn findimage() -> Result<String, Box<dyn std::error::Error>> {
     let body = Document::from(body.as_str());
     let image_iter = body
         .find(Name("img"))
-        .filter_map(|n| n.attr("src")); // this is an iterator
+        .filter_map(|n| get_absolute_uri(n)); // this is an iterator
     let random_num = rand::thread_rng().gen_range(0..image_iter.count());
     // TODO: find out how can we copy iterator instead of having to regenerate it
     let mut image_iter = body
         .find(Name("img"))
-        .filter_map(|n| n.attr("src")); // this is an iterator
+        .filter_map(|n| get_absolute_uri(n)); // this is an iterator
     let image = image_iter.nth(random_num); // TODO: handle None scenario
 
     return Ok(String::from(image.unwrap()));
