@@ -43,13 +43,13 @@ impl EventHandler for Handler {
                     }
                 } else if msg.content.starts_with(CHOOSE_COMMAND) {
                     let mut choices = Vec::new();
-                    for word in msg.split_whitespace() {
+                    for word in msg.content.split_whitespace() {
                         if word!="lame" && word!="wybierz" && word!="czy" {
                             choices.push(word);
                         }
                     }
                     let mut length = choices.len();
-                    let reply = format("wybieram {}", choices[rand::thread_rng().gen_range(0..length)]);
+                    let reply = format!("wybieram {}", choices[rand::thread_rng().gen_range(0..length)]);
                     if let Err(why) = msg.reply(&ctx.http, reply).await {
                         println!("Error sending message: {:?}", why);
                     }
