@@ -49,7 +49,7 @@ impl EventHandler for Handler {
                         }
                     }
                     let mut length = choices.len();
-                    let reply = format("{wybieram }", choices[rand::thread_rng().gen_range(0..length)]);
+                    let reply = format("wybieram {}", choices[rand::thread_rng().gen_range(0..length)]);
                     if let Err(why) = msg.reply(&ctx.http, reply).await {
                         println!("Error sending message: {:?}", why);
                     }
