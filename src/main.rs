@@ -1,5 +1,5 @@
 #![type_length_limit="1884939"]
-use std::{convert::Infallible, env, net::SocketAddr};
+use std::{convert::Infallible, env, net::SocketAddr, str};
 use hyper::{Body, Request, Response, Server, service::{make_service_fn, service_fn}};
 use serenity::{
     async_trait,
@@ -17,8 +17,9 @@ Hello there, I'm a friendly llama!";
 const HELP_COMMAND: &str = "%help";
 const SHOW_COMMAND: &str = "%pokazlame";
 const YESNO_COMMAND: &str = "lame czy";
+const CHOOSE_COMMAND: &str = "lame wybierz";
 
-const YESNO_RESPONSES: [&str; 10] = ["Tak.", "Nie.", "Oczywiście!", "Zapomnij!", "да!", "Нет!", "Jeszcze jak!", "No chyba nie.", "Ja!", "Nein!"];
+const YESNO_RESPONSES: [&str; 17] = ["Tak.", "Nie.", "Oczywiście!", "Zapomnij!", "да!", "Нет!", "Jeszcze jak!", "No chyba nie.", "Ja!", "Nein!", "Oui~", "Nee", "Spoczko", "No chyba ty", "是的", "いいえ", "Ya, m8!"];
 
 struct Handler;
 
@@ -36,7 +37,19 @@ impl EventHandler for Handler {
             }
             &_ => {
                 if msg.content.starts_with(YESNO_COMMAND) {
-                    let reply = format!(":8ball: {}", YESNO_RESPONSES[rand::thread_rng().gen_range(0..10)]);
+                    let reply = format!(":8ball: {}", YESNO_RESPONSES[rand::thread_rng().gen_range(0..17)]);
+                    if let Err(why) = msg.reply(&ctx.http, reply).await {
+                        println!("Error sending message: {:?}", why);
+                    }
+                } else if msg.content.starts_with(CHOOSE_COMMAND) {
+                    let mut choices = Vec::new();
+                    for word in msg.content.split_whitespace() {
+                        if word!="lame" && word!="wybierz" && word!="czy" {
+                            choices.push(word);
+                        }
+                    }
+                    let mut length = choices.len();
+                    let reply = format!("wybieram {}", choices[rand::thread_rng().gen_range(0..length)]);
                     if let Err(why) = msg.reply(&ctx.http, reply).await {
                         println!("Error sending message: {:?}", why);
                     }
